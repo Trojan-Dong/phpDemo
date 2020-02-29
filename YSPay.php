@@ -17,7 +17,7 @@
             $this->biz_content = null;
         }
         public function desencrypt($data){
-            $out = openssl_encrypt($data, 'DES-ECB', $this->$signKey, OPENSSL_RAW_DATA);
+            $out = openssl_encrypt($data, 'DES-ECB', $this->$DES_ENCODE_KEY, OPENSSL_RAW_DATA);
             echo base64_encode($out);
         }
         public function SetInfo($key,$val){
