@@ -16,9 +16,14 @@
             $this->sign = null;
             $this->biz_content = null;
         }
-        public function desencrypt($data){
-            $out = openssl_encrypt($data, 'DES-ECB', $this->$DES_ENCODE_KEY, OPENSSL_RAW_DATA);
-            echo base64_encode($out);
+		// des加密
+        public function desEncrypt($data){
+			echo $data;
+			echo "<br/>";
+			echo $this->DES_ENCODE_KEY;
+			echo "<br/>";
+            $out = openssl_encrypt($data, 'DES-ECB', $this->DES_ENCODE_KEY, OPENSSL_RAW_DATA);
+            return bin2hex($out);
         }
         public function SetInfo($key,$val){
             $this->info[$key]=$val;
@@ -32,6 +37,7 @@
             $this->sign = $this->sign_encrypt($this->convertPrivateKey(),$this->biz_content);
 			echo $sign;
         }
+		// 请求返回
         public function post_return($service){
             $this->sign_json();
             $post_data =  "sign=".urlencode($this->sign)."&charset=UTF-8&biz_content=".urlencode($this->biz_content)."&partner=".$this->merchant_id."&sign_type=RSA&service=".$service;
@@ -77,14 +83,16 @@
             curl_close($ch);
             return $result;
         }
+		// 加签
         private  function sign_encrypt($private_key,$data){
             $pi_key =  openssl_pkey_get_private($private_key);
             openssl_sign($data,$signature,$pi_key,OPENSSL_ALGO_SHA1);//生成签名
             $signature = base64_encode($signature);
             openssl_free_key($pi_key);
-			echo $signature \r;
+			// echo $signature \r;
             return $signature;
         }
+		// 验签
         private function sign_decrypt($public_key ,$sign_str,$encrypted){
             $pu_key = openssl_pkey_get_public($public_key);
             $verify = openssl_verify($sign_str, base64_decode($encrypted), $pu_key, OPENSSL_ALGO_SHA1);
@@ -123,8 +131,8 @@
             $public_key_footer = "-----END RSA PRIVATE KEY-----";
             //完整私钥拼接
             $public_key_string = $public_key_header.$public_key_string.$public_key_footer;
-			print_r($public_key_string)
-            // return $public_key_string;
+			// print_r($public_key_string)
+            return $public_key_string;
         }
     }
 
@@ -132,6 +140,8 @@
 <?php 
 	//调用
 		$ys = new YSPay();
+		// $code="6214855912364599";
+		// echo $ys->desencrypt($code);
 	    $ys->SetInfo("out_trade_no",time().rand(1000000,9999999));
 	    $ys->SetInfo("merchant_id",$ys->merchant_id);
 	    $ys->SetInfo("acc","6214835650183187");
